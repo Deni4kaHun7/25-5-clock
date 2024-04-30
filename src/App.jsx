@@ -1,12 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [breakLength, setBrakeLength] = useState(5)
   const [sessionLength, setSessionLength] = useState(25)
-  const [timer, setTimer] = useState("04:00")
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
+  const [timerRunning, setTimerRunning] = useState(false);
+
+  // Function to format the seconds into minutes and seconds
+  useEffect(() => {
+    let timer;
+    if (timerRunning && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+    }
+
+    return () => clearInterval(timer);
+  }, [timerRunning, timeLeft]);
+
+  const startTimer = () => {
+    setTimerRunning(prevState => !prevState);
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+  };
+
   return (
     <div className="clock">
       <h1>25 + 5 Clock</h1> 
@@ -30,12 +52,13 @@ function App() {
       </div>
       <div className="timer-container">
         <h3 id="timer-label">Session</h3>
-        <h2 id="time-left">{timer}</h2>
+        <h2 id="time-left">{formatTime(timeLeft)}</h2>
       </div>
-      <button id="start_stop">Start</button>
+      <button id="start_stop" onClick={startTimer}>Start</button>
       <button id="reset">Reset</button>
     </div>
   )
 }
 
 export default App
+
